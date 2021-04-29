@@ -36,13 +36,11 @@ variable "ec2_key_name" {
 variable "vpc_private_subnet_ids" {
   description = "AWS VPC Subnet id for the public subnet"
   type        = list(any)
-  default     = []
 }
 
 variable "vpc_mgmt_subnet_ids" {
   description = "AWS VPC Subnet id for the management subnet"
   type        = list(any)
-  default     = []
 }
 
 variable "mgmt_eip" {
@@ -54,13 +52,11 @@ variable "mgmt_eip" {
 variable "mgmt_subnet_security_group_ids" {
   description = "AWS Security Group ID for BIG-IP management interface"
   type        = list(any)
-  default     = []
 }
 
 variable "private_subnet_security_group_ids" {
   description = "AWS Security Group ID for BIG-IP private interface"
   type        = list(any)
-  default     = []
 }
 
 variable "aws_secretmanager_secret_id" {
