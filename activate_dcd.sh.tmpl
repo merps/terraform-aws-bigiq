@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+## lifted this in attempt to delay(?) config.
+function waitMcpd () {
+checks=0
+while [[ "$checks" -lt 120 ]]; do
+    echo "checking mcpd"
+    tmsh -a show sys mcp-state field-fmt | grep -q running
+   if [ $? == 0 ]; then
+       echo "mcpd ready"
+       break
+   fi
+   echo "mcpd not ready yet"
+   let checks=checks+1
+   sleep 10
+done
+}
+waitMcpd
+## Split of big-iq aws quickstart for substitution
+/usr/bin/env python /config/cloud/wait-for-service.py
+echo "activating BIG-IQ CM"
+/config/cloud/bigiq-config.py --licensekey ${license_key} --masterkey ${master_key} --personality ${personality} --hostname ${hostname} --managementIpAddress ${management_ip} --discoveryAddress ${discovery_ip} --timezone ${timezone} --ntp_servers ${ntp_servers} --dns_servers ${dns_servers} --user admin --password ${admin_password}
+echo "adding dcd's to big-iq cm"
+/config/cloud/add-dcd.py --DCD_IP_ADDRESS ${dcd_ip} --DCD_PWD ${admin_password} --DCD_USERNAME admin
+echo "activation of dcd's"
+/config/cloud/activate-dcd-services.py --SERVICES asm access dos websafe ipsec afm --DCD_IP_ADDRESS ${dcd_ip}
+set-basic-auth on
+tmsh modify auth user admin password shell tmsh && tmsh save sys config;
+echo "big-iq dcd activation complete"
+exit

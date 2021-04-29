@@ -1,0 +1,10 @@
+ec2_key_name = "mjk-f5cs-apse2"
+prefix = "tf-tst"
+region = "ap-southeast-2"
+azs = ["ap-southeast-2a", "ap-southeast-2b"]
+cidr = "10.0.0.0/16"
+allowed_mgmt_cidr = "0.0.0.0/0"
+cm_license_keys = ["UTNFD-QVQFSD-CEQ-MKOLTXK-PGKIAKB"]
+dcd_license_keys = ["skipLicense:true"]
+search_domain = "test.local"
+hostname = "biq-thing"

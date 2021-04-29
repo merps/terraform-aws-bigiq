@@ -1,0 +1,40 @@
+#!/bin/bash
+function waitIq () {
+  count=0
+  while [ $count -le 10 ]
+  do
+    status=$( curl -sk --header "$(setToken)" https://localhost:$mgmt_port$systemInfoUrl | jq .)
+    statusType=$(echo $status | jq -r type)
+    if [ "$statusType" == "object" ]; then
+      state=$( echo $status | jq -r .available)
+      if [ "$state" == "true" ]; then
+        echo "ready"
+        break
+      else
+        count=$[$count+1]
+        sleep 30
+      fi
+    else
+      count=$[$count+1]
+      sleep 30
+    fi
+    if [ $count == 10 ]; then
+      echo "failed: $state"
+    fi
+  done
+}
+function waitMcpd () {
+checks=0
+while [[ "$checks" -lt 120 ]]; do
+    echo "checking mcpd"
+    tmsh -a show sys mcp-state field-fmt | grep -q running
+   if [ $? == 0 ]; then
+       echo "mcpd ready"
+       break
+   fi
+   echo "mcpd not ready yet"
+   let checks=checks+1
+   sleep 10
+done
+}
+waitMcpd

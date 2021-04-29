@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+echo "big-iq quickstart scripts"
+echo "/tmp" >> /config/ssh/scp.whitelist
+tmsh restart service sshd;
+mkdir -p /config/cloud
+cd /config/cloud
+curl https://s3.amazonaws.com/big-iq-quickstart-cf-templates-aws/8.0.0/scripts.tar.gz > scripts.tar.gz
+tar --strip-components=1 -xvzf scripts.tar.gz
+echo "waiting on services"
+/usr/bin/env python /config/cloud/wait-for-service.py
+echo "big-iq services up"
+tmsh modify auth user admin password ${admin_password} shell bash && tmsh save sys config;
+echo "admin user modified"
+#chmod +x /config/cloud/import-as3-templates.sh
+#/config/cloud/import-as3-templates.sh
+set-basic-auth on
+echo "big-iq provisioning complete"
+exit
