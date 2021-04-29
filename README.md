@@ -1,7 +1,3 @@
-## Requirements
-
-No requirements.
-
 ## Providers
 
 | Name | Version |
@@ -9,10 +5,6 @@ No requirements.
 | <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
 | <a name="provider_null"></a> [null](#provider\_null) | n/a |
 | <a name="provider_time"></a> [time](#provider\_time) | n/a |
-
-## Modules
-
-No modules.
 
 ## Inputs
 
