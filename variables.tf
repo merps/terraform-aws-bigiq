@@ -41,13 +41,11 @@ variable "vpc_id" {
 variable "vpc_private_subnet_ids" {
   description = "AWS VPC Subnet id for the public subnet"
   type        = list(any)
-  default = []
 }
 
 variable "vpc_mgmt_subnet_ids" {
   description = "AWS VPC Subnet id for the management subnet"
   type        = list(any)
-  default = []
 }
 
 variable "mgmt_eip" {
