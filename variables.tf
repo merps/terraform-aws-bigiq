@@ -79,16 +79,17 @@ variable "admin_name" {
 variable "admin_password" {
   description = "Admin user on the BIG-IQ"
   type        = string
+  default     = ""
 }
 
 variable "cm_license_keys" {
   description = "BIG-IQ CM License Keys"
-  type = list(string)
+  type        = list(string)
 }
 
 variable "dcd_license_keys" {
   description = "BIG-IQ DCD License Keys"
-  type = list(string)
+  type        = list(string)
 }
 
 variable "ntp_servers" {
@@ -134,5 +135,5 @@ variable "location" { default = "apsoutheast2" }
 
 variable "timezone" {
   description = "BIG-IQ CM/DCD Deployed Time Zone"
-  default = "Australia/Sydney"
+  default     = "Australia/Sydney"
 }
