@@ -24,6 +24,12 @@ locals {
   hostname = "${var.hostname}.${var.dns_search_domains[0]}"
 }
 #
+# AWS Local VPC data caching
+#
+data "aws_vpc" "selected" {
+  id = var.vpc_id
+}
+#
 # BIG-IQ CM Interfaces
 #
 resource "aws_network_interface" "cm_mgmt" {
@@ -58,14 +64,14 @@ resource "aws_network_interface" "dcd_private" {
 resource "aws_security_group" "allow_https" {
   name        = "allow_tls"
   description = "Allow TLS inbound traffic"
-  vpc_id      = var.vpc_id
+  vpc_id      = data.aws_vpc.selected.id
 
   ingress {
     description      = "TLS from VPC"
     from_port        = 443
     to_port          = 443
     protocol         = "tcp"
-    cidr_blocks      = [var.vpc_cidr]
+    cidr_blocks      = [data.aws_vpc.selected.cidr_block]
   }
 
   egress {
@@ -91,7 +97,7 @@ resource "aws_security_group" "allow_ssh" {
     from_port        = 22
     to_port          = 22
     protocol         = "tcp"
-    cidr_blocks      = [var.vpc_cidr]
+    cidr_blocks      = [data.aws_vpc.selected.cidr_block]
   }
 
   egress {

@@ -38,15 +38,6 @@ variable "vpc_id" {
   type        = string
 }
 
-data "aws_vpc" "selected" {
-  id = var.vpc_id
-}
-
-variable "vpc_cidr" {
-  description = "AWS VPC CIDR"
-  default = data.aws_vpc.selected.cidr_block
-}
-
 variable "vpc_private_subnet_ids" {
   description = "AWS VPC Subnet id for the public subnet"
   type        = list(any)
@@ -108,7 +99,7 @@ variable "cm_license_keys" {
 variable "dcd_license_keys" {
   description = "BIG-IQ DCD License Keys"
   type        = list(string)
-  default     = ""
+  default = []
 }
 
 variable "ntp_servers" {
