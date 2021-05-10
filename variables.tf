@@ -33,20 +33,30 @@ variable "ec2_key_name" {
   type        = string
 }
 
-variable "vpc" {
+variable "vpc_id" {
   description = "AWS VPC ID for deployment"
   type        = string
 }
+
+data "aws_vpc" "selected" {
+  id = var.vpc_id
+}
+
+variable "vpc_cidr" {
+  description = "AWS VPC CIDR"
+  default = data.aws_vpc.selected.cidr_block
+}
+
 variable "vpc_private_subnet_ids" {
   description = "AWS VPC Subnet id for the public subnet"
   type        = list(any)
-  default     = ""
+  default = []
 }
 
 variable "vpc_mgmt_subnet_ids" {
   description = "AWS VPC Subnet id for the management subnet"
   type        = list(any)
-  default     = ""
+  default = []
 }
 
 variable "mgmt_eip" {
@@ -58,13 +68,13 @@ variable "mgmt_eip" {
 variable "mgmt_subnet_security_group_ids" {
   description = "AWS Security Group ID for BIG-IP management interface"
   type        = list(any)
-  default     = ""
+  default = []
 }
 
 variable "private_subnet_security_group_ids" {
   description = "AWS Security Group ID for BIG-IP private interface"
   type        = list(any)
-  default     = ""
+  default = []
 }
 
 variable "aws_secretmanager_secret_id" {
