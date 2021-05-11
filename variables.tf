@@ -33,6 +33,11 @@ variable "ec2_key_name" {
   type        = string
 }
 
+variable "vpc_id" {
+  description = "AWS VPC ID for deployment"
+  type        = string
+}
+
 variable "vpc_private_subnet_ids" {
   description = "AWS VPC Subnet id for the public subnet"
   type        = list(any)
@@ -52,11 +57,13 @@ variable "mgmt_eip" {
 variable "mgmt_subnet_security_group_ids" {
   description = "AWS Security Group ID for BIG-IP management interface"
   type        = list(any)
+  default = []
 }
 
 variable "private_subnet_security_group_ids" {
   description = "AWS Security Group ID for BIG-IP private interface"
   type        = list(any)
+  default = []
 }
 
 variable "aws_secretmanager_secret_id" {
@@ -79,16 +86,18 @@ variable "admin_name" {
 variable "admin_password" {
   description = "Admin user on the BIG-IQ"
   type        = string
+  default     = ""
 }
 
 variable "cm_license_keys" {
   description = "BIG-IQ CM License Keys"
-  type = list(string)
+  type        = list(string)
 }
 
 variable "dcd_license_keys" {
   description = "BIG-IQ DCD License Keys"
-  type = list(string)
+  type        = list(string)
+  default = []
 }
 
 variable "ntp_servers" {
@@ -131,5 +140,5 @@ variable "location" { default = "apsoutheast2" }
 
 variable "timezone" {
   description = "BIG-IQ CM/DCD Deployed Time Zone"
-  default = "Australia/Sydney"
+  default     = "Australia/Sydney"
 }
