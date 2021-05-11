@@ -1,7 +1,7 @@
 variable "prefix" {
   description = "Prefix for resources created by this module"
   type        = string
-  default     = "terraform-aws-bigiq-demo"
+  default     = "tf-aws-bigiq"
 }
 
 variable "f5_ami_search_name" {
@@ -13,13 +13,13 @@ variable "f5_ami_search_name" {
 variable "dcd_instance_count" {
   description = "Number of BIG-IPs to deploy"
   type        = number
-  default     = 1
+  default = 1
 }
 
 variable "cm_instance_count" {
   description = "Number of BIG-IPs to deploy"
   type        = number
-  default     = 1
+  default = 1
 }
 
 variable "ec2_instance_type" {
@@ -73,7 +73,7 @@ variable "onboard_log" {
 variable "admin_name" {
   description = "Admin user on the BIG-IQ"
   type        = string
-  default     = "admin"
+  default = "admin"
 }
 
 variable "admin_password" {
@@ -106,7 +106,7 @@ variable "dns_servers" {
 variable "dns_search_domains" {
   description = "BIG-IQ DNS Search Domains"
   type        = list(string)
-  default     = ["test.local"]
+  default     = ["example.local"]
 }
 
 variable "personality" {
@@ -119,13 +119,10 @@ variable "personality" {
 variable "hostname" {
   description = "BIG-IQ Hostname"
   type        = string
-  default     = "buggered-thing-already"
+  default     = "bigiq"
 }
+
 # admin
-variable "adminName" {
-  description = "admin account name"
-  default     = "admin"
-}
 variable "masterkey" {
   description = "bigiq master key"
   default     = "ThisIsIt%1234"

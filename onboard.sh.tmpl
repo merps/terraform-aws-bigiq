@@ -53,19 +53,14 @@ tmsh save sys config
 CREDS="$admin_username:$admin_password"
 mkdir -p /home/$admin_username/.ssh/
 cp /home/admin/.ssh/authorized_keys /home/$admin_username/.ssh/authorized_keys
+
 onboard_log="${onboardLog}"
 bigIqLicenseKey="${bigIqLicenseKey}"
 ntpServers="${ntpServers}"
 ntpTimeZone="${timeZone}"
-licensePoolKeys="${licensePoolKeys}"
-regPoolKeys="${regPoolKeys}"
 adminPassword='${adminPassword}'
 masterKey='${masterKey}'
-f5CloudLibsTag="${f5CloudLibsTag}"
-f5CloudLibsAzureTag="${f5CloudLibsAzureTag}"
-allowUsageAnalytics="${allowUsageAnalytics}"
 location="${location}"
-deploymentId="${deploymentId}"
 dnsSearchDomains="${dnsSearchDomains}"
 dnsServers="${dnsServers}"
 CURL="/usr/bin/curl"
@@ -80,8 +75,6 @@ licenseRegistrationUrl="/mgmt/setup/license"
 personalityUrl="/mgmt/setup/personality"
 base_url="https://raw.githubusercontent.com/F5Networks"
 base_dir="/config/cloud"
-base_log_dir="/var/log/cloud/$${cloud}"
-base_dependency_dir="$${base_dir}/$${cloud}/node_modules/@f5devcentral"
 localHost="https://localhost:"
 hostNameUrl="/mgmt/setup/address"
 hostName="${hostName}"
@@ -395,6 +388,7 @@ else
     done
 fi
 waitMcpd
+waitIq
 setHostName
 setMasterKey
 setPasswords

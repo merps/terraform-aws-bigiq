@@ -71,7 +71,7 @@ module "bigiq_mgmt_sg" {
   ingress_with_source_security_group_id = [
     {
       rule                     = "all-all"
-      source_security_group_id = module.bigiq_mgmt_sg.this_security_group_id
+      source_security_group_id = module.bigiq_mgmt_sg.security_group_id
     }
   ]
 
@@ -96,7 +96,7 @@ module "bigiq_sg" {
   ingress_with_source_security_group_id = [
     {
       rule                     = "all-all"
-      source_security_group_id = module.bigiq_mgmt_sg.this_security_group_id
+      source_security_group_id = module.bigiq_mgmt_sg.security_group_id
     }
   ]
 
@@ -122,10 +122,10 @@ module "bigiq" {
   aws_secretmanager_secret_id = aws_secretsmanager_secret.bigiq.id
 
   mgmt_subnet_security_group_ids = [
-    module.bigiq_mgmt_sg.this_security_group_id
+    module.bigiq_mgmt_sg.security_group_id
   ]
   private_subnet_security_group_ids = [
-    module.bigiq_sg.this_security_group_id
+    module.bigiq_sg.security_group_id
   ]
   vpc_private_subnet_ids = module.vpc.private_subnets
   vpc_mgmt_subnet_ids    = module.vpc.public_subnets
