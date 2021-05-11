@@ -1,5 +1,5 @@
 #!/bin/bash
-LOG_FILE=${onboardLog}
+LOG_FILE=${onboard_log}
 if [ ! -e $LOG_FILE ]
 then
      touch $LOG_FILE
@@ -42,8 +42,8 @@ while [[ "$checks" -lt 120 ]]; do
 done
 }
 waitMcpd
-admin_username='${adminName}'
-admin_password='${adminPassword}'
+admin_username='${admin_name}'
+admin_password='${admin_password}'
 tmsh create auth user $admin_username password $admin_password shell bash partition-access add { all-partitions { role admin } };
 tmsh modify auth user $admin_username shell bash partition-access add { all-partitions { role admin } };
 tmsh list auth user $admin_username
@@ -53,16 +53,14 @@ tmsh save sys config
 CREDS="$admin_username:$admin_password"
 mkdir -p /home/$admin_username/.ssh/
 cp /home/admin/.ssh/authorized_keys /home/$admin_username/.ssh/authorized_keys
-
-onboard_log="${onboardLog}"
-bigIqLicenseKey="${bigIqLicenseKey}"
-ntpServers="${ntpServers}"
-ntpTimeZone="${timeZone}"
-adminPassword='${adminPassword}'
-masterKey='${masterKey}'
-location="${location}"
-dnsSearchDomains="${dnsSearchDomains}"
-dnsServers="${dnsServers}"
+onboard_log="${onboard_log}"
+bigIqLicenseKey="${licensekey}"
+hostName="${hostname}"
+ntpServers="${ntp_servers}"
+ntpTimeZone="${timezone}"
+masterKey='${masterkey}'
+dnsSearchDomains="${dns_search_domains}"
+dnsServers="${dns_servers}"
 CURL="/usr/bin/curl"
 cloud="aws"
 mgmt_port=`tmsh list sys httpd ssl-port | grep ssl-port | sed 's/ssl-port //;s/ //g'`
@@ -77,7 +75,6 @@ base_url="https://raw.githubusercontent.com/F5Networks"
 base_dir="/config/cloud"
 localHost="https://localhost:"
 hostNameUrl="/mgmt/setup/address"
-hostName="${hostName}"
 masterKeyUrl="/mgmt/setup/masterkey"
 vlanUrl="/mgmt/setup/address/vlan"
 selfipUrl="/mgmt/setup/address/self-ip"
@@ -168,8 +165,8 @@ checkLicense () {
 getEulaPayload () {
 eulaPayload=$(cat -<<EOF
   {
-  "baseRegKey": "${ bigIqLicenseKey }",
-  "dossier: "$(getDossier ${ bigIqLicenseKey })",
+  "baseRegKey": "${ licensekey }",
+  "dossier: "$(getDossier ${ licensekey })",
   "eulaText": $(curl -sk --header "$(setToken)" --url $localHost$mgmt_port$licenseUrl | jq .eulaText)
   }
 EOF
@@ -282,14 +279,14 @@ EOF
 )
 discoveryPayload=$(cat -<<EOF
 {
-    "discoveryAddress": "${discoveryAddress}"
+    "discoveryAddress": "${discovery_ip}"
 }
 EOF
 )
 selfIpPayload=$(cat -<<EOF
 {
     "name": "self_discovery",
-    "address": "${discoveryAddressSelfip}",
+    "address": "${discovery_ip}",
     "vlan": "/Common/discovery"
 }
 EOF
@@ -313,7 +310,7 @@ credsPayload=$(cat -<<EOF
 }
 EOF
 )
-if [ "$bigIqLicenseKey" == "" ]; then
+if [ "$licensekey" == "" ]; then
 licensePayload=$(cat -<<EOF
   {
       "licenseText": "skipLicense:true"
@@ -323,7 +320,7 @@ EOF
 else
 licensePayload=$(cat -<<EOF
   {
-      "baseRegKey": "${ bigIqLicenseKey }",
+      "baseRegKey": "${ licensekey }",
       "addOnKeys": [],
       "activationMethod": "AUTOMATIC"
   }
@@ -332,29 +329,19 @@ EOF
 fi
 personality=$(cat -<<EOF
 {
-  "systemPersonality": "logging_node"
+  "systemPersonality": "${personality}"
 }
 EOF
 )
 waitMcpd
 check_internet_connection
-dependencies=("$${base_url}/f5-cloud-libs/$${f5CloudLibsTag}/dist/f5-cloud-libs.tar.gz")
-dependencies+=("$${base_url}/f5-cloud-libs-$${cloud}/$${f5CloudLibsAzureTag}/dist/f5-cloud-libs-$${cloud}.tar.gz")
-dependencies+=("$${base_url}/f5-cloud-libs/$${f5CloudLibsTag}/dist/verifyHash")
-
-for i in $${dependencies[@]} ; do
-    log "Downloading dependency: $i"
-    f=$(basename $i)
-    safe_download $${base_dir}/$f $i
-    # $CURL -ksf --retry 10 --retry-delay 5 --retry-max-time 240 -o $${base_dir}/$f $i
-done
 if [[ "$(waitIq)" == "ready" ]]; then
     echo "ready"
 else
     echo "failed IQ status not ready"
     exit
 fi
-if [ "$bigIqLicenseKey" == "" ]; then
+if [ "$licensekey" == "" ]; then
     echo "bigiq-license manager"
     licenseRegistration "$licensePayload"
 else
@@ -369,7 +356,7 @@ else
             echo "send eula"
         fi
         if [[ "$(checkLicense)" == "failed" ]]; then
-            if [ "$bigIqLicenseKey" == "" ]; then
+            if [ "$licensekey" == "" ]; then
                 licenseRegistration "$licensePayload"
             else
                 echo "check license key"
@@ -388,7 +375,6 @@ else
     done
 fi
 waitMcpd
-waitIq
 setHostName
 setMasterKey
 setPasswords

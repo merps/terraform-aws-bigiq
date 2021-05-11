@@ -33,13 +33,13 @@ data "aws_vpc" "selected" {
 # BIG-IQ CM Interfaces
 #
 resource "aws_network_interface" "cm_mgmt" {
-  count           = length(var.vpc_mgmt_subnet_ids)
+  count           = var.cm_instance_count
   subnet_id       = var.vpc_mgmt_subnet_ids[count.index]
   security_groups = var.mgmt_subnet_security_group_ids
 }
 
 resource "aws_network_interface" "cm_private" {
-  count           = length(var.vpc_private_subnet_ids)
+  count           = var.cm_instance_count
   subnet_id       = var.vpc_private_subnet_ids[count.index]
   security_groups = var.private_subnet_security_group_ids
 }
@@ -48,13 +48,13 @@ resource "aws_network_interface" "cm_private" {
 # BIG-IQ DCD Interfaces
 #
 resource "aws_network_interface" "dcd_mgmt" {
-  count           = length(var.vpc_mgmt_subnet_ids)
+  count           = var.dcd_instance_count
   subnet_id       = var.vpc_mgmt_subnet_ids[count.index]
   security_groups = var.mgmt_subnet_security_group_ids
 }
 
 resource "aws_network_interface" "dcd_private" {
-  count           = length(var.vpc_private_subnet_ids)
+  count           = var.dcd_instance_count
   subnet_id       = var.vpc_private_subnet_ids[count.index]
   security_groups = var.private_subnet_security_group_ids
 }
@@ -220,10 +220,22 @@ resource "aws_instance" "f5_bigiq_cm" {
   }
 
   # build user_data file from template
-  user_data = templatefile("${path.module}/setup-cm-background.sh.tmpl",
+  user_data = templatefile("${path.module}/onboard.sh.tmpl",
     {
+      admin_name = var.admin_name
       admin_password = var.admin_password
       onboard_log    = var.onboard_log
+      licensekey    = var.cm_license_keys[count.index]
+      masterkey     = var.masterkey
+      personality    = "big_iq"
+      timezone       = var.timezone
+      ## todo need to update template to reflect passing of lists
+      ntp_servers    = var.ntp_servers[0]
+      dns_servers    = var.dns_servers[0]
+      dns_search_domains = var.dns_search_domains[count.index]
+      hostname       = local.hostname
+      management_ip  = aws_network_interface.cm_mgmt[count.index].private_ip
+      discovery_ip   = aws_network_interface.cm_mgmt[count.index].private_ip
     }
   )
   depends_on = [aws_eip.cm_mgmt]
@@ -232,7 +244,7 @@ resource "aws_instance" "f5_bigiq_cm" {
     Name = format("%s-cm-%d", var.prefix, count.index)
   }
 }
-
+/*
 #
 # Hack for remote exec of provisioning
 #
@@ -327,3 +339,4 @@ resource "null_resource" "cm_tst" {
     }
   }
 }
+*/

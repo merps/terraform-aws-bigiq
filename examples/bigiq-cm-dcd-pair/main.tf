@@ -129,4 +129,5 @@ module "bigiq" {
   ]
   vpc_private_subnet_ids = module.vpc.private_subnets
   vpc_mgmt_subnet_ids    = module.vpc.public_subnets
+  vpc_id = module.vpc.vpc_id
 }

@@ -1,4 +1,4 @@
-ec2_key_name = "/home/merps/work/kpmjk-f5cs-apse2"
+ec2_key_name = "mjk-f5cs-apse2"
 prefix = "tf-tst"
 region = "ap-southeast-2"
 azs = ["ap-southeast-2a", "ap-southeast-2b"]
