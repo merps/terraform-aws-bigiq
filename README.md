@@ -1,11 +1,35 @@
-## Providers
+# AWS BIG-IQ Terraform Module
 
-| Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
-| <a name="provider_null"></a> [null](#provider\_null) | n/a |
-| <a name="provider_time"></a> [time](#provider\_time) | n/a |
+Terraform module that creates BIG-IQ Centralised Manager (CM) and Data Collection Devices (DCD) for AWS deployments.
 
+## Usage
+
+```hcl
+module "big_iq_byol" {
+  source = "github.com/merps/terraform-aws-bigiq"
+  aws_secretmanager_secret_id = "AWS Secrets Manager ID Reference"
+  cm_license_keys = [ "XXXX-XXXX-XXXX-XXXX <BIG-IQ CM license Keys>" ]
+  dcd_license_keys = [ "XXXX-XXXX-XXXX-XXXX <BIG-IQ DCD license Keys>" ]
+  ec2_key_name = "<ec2_keypair_name>"
+  vpc_id = "<AWS Deployment VPC-ID>"
+  vpc_mgmt_subnet_ids = ["<AWS Preferred Management Subnet IDS>"]
+  vpc_private_subnet_ids = ["<AWS Preferred Discovery/Private Subnet IDS>"]
+
+  tags = {
+    Terraform = "true"
+    Environment = "dev"
+  }
+}
+```
+
+
+## Security instructions
+
+1. F5 strongly recommends that you configure autoshutdown / whitelist the public IP addresses in the network security group you use to access the SSH port of the AWSinstances. (This template deploys a network security group with ports 22, 80, and 443 open to the public.)
+
+2. Avoid enabling the `root` account on publicly exposed AWS instances.
+
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Inputs
 
 | Name | Description | Type | Default | Required |
@@ -50,3 +74,25 @@
 | <a name="output_dcd_mgmt_port"></a> [dcd\_mgmt\_port](#output\_dcd\_mgmt\_port) | HTTPS Port used for the BIG-IQ management interface |
 | <a name="output_dcd_mgmt_private_ips"></a> [dcd\_mgmt\_private\_ips](#output\_dcd\_mgmt\_private\_ips) | List of BIG-IQ CM Private IP's |
 | <a name="output_dcd_mgmt_public_ips"></a> [dcd\_mgmt\_public\_ips](#output\_dcd\_mgmt\_public\_ips) | List of BIG-IP public IP addresses for the management interfaces |
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
+### License
+
+#### Apache V2.0
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and limitations
+under the License.
+
+#### Contributor License Agreement
+
+Individuals or business entities who contribute to this project must have
+completed and submitted the [F5 Contributor License Agreement](http://f5-openstack-docs.readthedocs.io/en/latest/cla_landing.html).
