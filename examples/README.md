@@ -11,7 +11,7 @@ This **CloudFormation Template (CFT)** or **Azure Resource Manager (ARM)** creat
 After you configure the BIG-IQ instances, BIG-IQ can manage any F5 BIG-IP physical and virtual devices. 
 If your BIG-IPs are on premise in your Data Center, you will need a VPN or DirectConnect (DX) to AWS.
 
-- [AWS Quick Start](examples/big-iq-cm-dcd-pair/)
+- [AWS Quick Start](../examples/big-iq-cm-dcd-pair)
 
 ### Copyright
 
