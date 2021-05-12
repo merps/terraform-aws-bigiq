@@ -29,7 +29,7 @@ The deployment architecture is deployed as indicated in the diagram below;
 
 **Note:** This template uses BIG-IQ 8.0.0.1
 
-![Deployment Diagram](../images/diagram-bigiq-aws.png)
+![Deployment Diagram](../images/transparent-proxy.png)
 
 
 1. Open the [EC2 console](https://console.aws.amazon.com/ec2/v2/home) and wait until the BIG-IQ instances are fully deployed.
