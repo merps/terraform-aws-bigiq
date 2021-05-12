@@ -2,9 +2,9 @@
 ## Prerequisites
 
 To deploy the Terraform example of the BIG-IQ QuickStart BIG-IQ trial licenses are required.  To do this,
-go to [F5 Trial](https://f5.com/products/trials/product-trials).
+go to [F5 Trial](https://f5.com/products/trials/product-trials) and;
 
-   Select **BIG-IP VE and BIG-IQ**
+   * Select **BIG-IP VE and BIG-IQ**
 
 To deploy within AWS using Terraform a valid AWS Subscription is also required, select 
 Subscribe and accept the Terms and Conditions for these F5 products:
