@@ -67,11 +67,11 @@ resource "aws_security_group" "allow_https" {
   vpc_id      = data.aws_vpc.selected.id
 
   ingress {
-    description      = "TLS from VPC"
-    from_port        = 443
-    to_port          = 443
-    protocol         = "tcp"
-    cidr_blocks      = [data.aws_vpc.selected.cidr_block]
+    description = "TLS from VPC"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.selected.cidr_block]
   }
 
   egress {
@@ -93,11 +93,11 @@ resource "aws_security_group" "allow_ssh" {
   vpc_id      = var.vpc_id
 
   ingress {
-    description      = "SSH from VPC"
-    from_port        = 22
-    to_port          = 22
-    protocol         = "tcp"
-    cidr_blocks      = [data.aws_vpc.selected.cidr_block]
+    description = "SSH from VPC"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.selected.cidr_block]
   }
 
   egress {
@@ -117,13 +117,13 @@ resource "aws_security_group" "allow_ssh" {
 # BIG-IQ EIP Management
 #
 resource "aws_eip" "cm_mgmt" {
-  count             = var.mgmt_eip ? length(var.vpc_mgmt_subnet_ids) : 0
+  count             = var.mgmt_eip ? var.cm_instance_count : 0
   network_interface = aws_network_interface.cm_mgmt[count.index].id
   vpc               = true
 }
 
 resource "aws_eip" "dcd_mgmt" {
-  count             = var.mgmt_eip ? length(var.vpc_mgmt_subnet_ids) : 0
+  count             = var.mgmt_eip ? var.dcd_instance_count : 0
   network_interface = aws_network_interface.dcd_mgmt[count.index].id
   vpc               = true
 }
@@ -133,9 +133,9 @@ resource "aws_eip" "dcd_mgmt" {
 #
 resource "aws_instance" "f5_bigiq_dcd" {
   # determine the number of BIG-IPs to deploy
-  count                = var.dcd_instance_count
-  instance_type        = var.ec2_instance_type
-  ami                  = data.aws_ami.f5_ami.id
+  count         = var.dcd_instance_count
+  instance_type = var.ec2_instance_type
+  ami           = data.aws_ami.f5_ami.id
   #iam_instance_profile = local.big_iq_iam
 
   key_name = var.ec2_key_name
@@ -222,26 +222,57 @@ resource "aws_instance" "f5_bigiq_cm" {
   # build user_data file from template
   user_data = templatefile("${path.module}/onboard.sh.tmpl",
     {
-      admin_name = var.admin_name
+      admin_name     = var.admin_name
       admin_password = var.admin_password
       onboard_log    = var.onboard_log
-      licensekey    = var.cm_license_keys[count.index]
-      masterkey     = var.masterkey
+      licensekey     = var.cm_license_keys[count.index]
+      masterkey      = var.masterkey
       personality    = "big_iq"
       timezone       = var.timezone
       ## todo need to update template to reflect passing of lists
-      ntp_servers    = var.ntp_servers[0]
-      dns_servers    = var.dns_servers[0]
+      ntp_servers        = var.ntp_servers[0]
+      dns_servers        = var.dns_servers[0]
       dns_search_domains = var.dns_search_domains[count.index]
-      hostname       = local.hostname
-      management_ip  = aws_network_interface.cm_mgmt[count.index].private_ip
-      discovery_ip   = aws_network_interface.cm_mgmt[count.index].private_ip
+      hostname           = local.hostname
+      management_ip      = aws_network_interface.cm_mgmt[count.index].private_ip
+      discovery_ip       = aws_network_interface.cm_mgmt[count.index].private_ip
     }
   )
   depends_on = [aws_eip.cm_mgmt]
 
   tags = {
     Name = format("%s-cm-%d", var.prefix, count.index)
+  }
+}
+
+resource "null_resource" "onboard_local" {
+  provisioner "file" {
+    content = templatefile("${path.module}/onboard.sh.tmpl",
+      {
+        admin_name     = var.admin_name
+        admin_password = var.admin_password
+        onboard_log    = var.onboard_log
+        licensekey     = var.cm_license_keys[0]
+        masterkey      = var.masterkey
+        personality    = "big_iq"
+        timezone       = var.timezone
+        ## todo need to update template to reflect passing of lists
+        ntp_servers        = var.ntp_servers[0]
+        dns_servers        = var.dns_servers[0]
+        dns_search_domains = var.dns_search_domains[0]
+        hostname           = local.hostname
+        management_ip      = aws_network_interface.cm_mgmt[0].private_ip
+        discovery_ip       = aws_network_interface.cm_mgmt[0].private_ip
+      }
+    )
+    destination = "/config/onboard.sh-${var.cm_instance_count}"
+
+    connection {
+      type        = "ssh"
+      user        = "admin"
+      private_key = file("${var.ec2_key_name}.pem")
+      host        = aws_eip.cm_mgmt[0].public_ip
+    }
   }
 }
 /*

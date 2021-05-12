@@ -165,8 +165,8 @@ checkLicense () {
 getEulaPayload () {
 eulaPayload=$(cat -<<EOF
   {
-  "baseRegKey": "${ licensekey }",
-  "dossier: "$(getDossier ${ licensekey })",
+  "baseRegKey": "${licensekey}",
+  "dossier: "$(getDossier ${licensekey})",
   "eulaText": $(curl -sk --header "$(setToken)" --url $localHost$mgmt_port$licenseUrl | jq .eulaText)
   }
 EOF
@@ -310,7 +310,7 @@ credsPayload=$(cat -<<EOF
 }
 EOF
 )
-if [ "$licensekey" == "" ]; then
+if [ "$bigIqLicenseKey" == "" ]; then
 licensePayload=$(cat -<<EOF
   {
       "licenseText": "skipLicense:true"
@@ -320,7 +320,7 @@ EOF
 else
 licensePayload=$(cat -<<EOF
   {
-      "baseRegKey": "${ licensekey }",
+      "baseRegKey": "${licensekey}",
       "addOnKeys": [],
       "activationMethod": "AUTOMATIC"
   }
@@ -329,7 +329,7 @@ EOF
 fi
 personality=$(cat -<<EOF
 {
-  "systemPersonality": "${personality}"
+  "systemPersonality": "$personality"
 }
 EOF
 )
@@ -341,7 +341,7 @@ else
     echo "failed IQ status not ready"
     exit
 fi
-if [ "$licensekey" == "" ]; then
+if [ "$bigIqLicenseKey" == "" ]; then
     echo "bigiq-license manager"
     licenseRegistration "$licensePayload"
 else
@@ -356,7 +356,7 @@ else
             echo "send eula"
         fi
         if [[ "$(checkLicense)" == "failed" ]]; then
-            if [ "$licensekey" == "" ]; then
+            if [ "$bigIqLicenseKey" == "" ]; then
                 licenseRegistration "$licensePayload"
             else
                 echo "check license key"
@@ -378,9 +378,9 @@ waitMcpd
 setHostName
 setMasterKey
 setPasswords
-createDiscoveryVlan
-createDiscoverySelfIp
-setDiscoveryAddress
+# createDiscoveryVlan
+# createDiscoverySelfIp
+# setDiscoveryAddress
 setDns
 setNtp
 submitSetup
