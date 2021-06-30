@@ -113,6 +113,134 @@ resource "aws_security_group" "allow_ssh" {
   }
 }
 
+resource "aws_security_group" "dcd_node" {
+  name        = "dcd_node"
+  description = "Replication across Data Collection Device (DCD)"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    description = "DCD node-to-node"
+    from_port   = 9300
+    to_port     = 9300
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.selected.cidr_block]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Name = "dcd_node"
+  }
+}
+
+resource "aws_security_group" "dcd_node" {
+  name        = "dcd_node"
+  description = "Replication across Data Collection Device (DCD)"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    description = "DCD node-to-node"
+    from_port   = 9300
+    to_port     = 9300
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.selected.cidr_block]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Name = "dcd_node"
+  }
+}
+
+resource "aws_security_group" "big-iq_postgres" {
+  name        = "big-iq_postgres"
+  description = "postgres daemon IPC"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    description = "postgres daemon IPC"
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.selected.cidr_block]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Name = "big-iq_postgres"
+  }
+}
+
+resource "aws_security_group" "big-iq_corosync" {
+  name        = "big-iq_corosync"
+  description = "postgres daemon IPC"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    description = "corosync daemon IPC"
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "udp"
+    cidr_blocks = [data.aws_vpc.selected.cidr_block]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Name = "big-iq_corosync"
+  }
+}
+resource "aws_security_group" "big-iq_pacemaker" {
+  name        = "big-iq_pacemaker"
+  description = "postgres daemon IPC"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    description = "pacemaker daemon IPC"
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "udp"
+    cidr_blocks = [data.aws_vpc.selected.cidr_block]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Name = "big-iq_pacemaker"
+  }
+}
 #
 # BIG-IQ EIP Management
 #
