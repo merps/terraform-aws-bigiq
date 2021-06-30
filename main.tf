@@ -218,7 +218,7 @@ resource "aws_instance" "f5_bigiq_cm" {
       device_index         = 1
     }
   }
-
+/*
   # build user_data file from template
   user_data = templatefile("${path.module}/onboard.sh.tmpl",
     {
@@ -239,135 +239,9 @@ resource "aws_instance" "f5_bigiq_cm" {
     }
   )
   depends_on = [aws_eip.cm_mgmt]
+  */
 
   tags = {
     Name = format("%s-cm-%d", var.prefix, count.index)
   }
 }
-
-resource "null_resource" "onboard_local" {
-  provisioner "file" {
-    content = templatefile("${path.module}/onboard.sh.tmpl",
-      {
-        admin_name     = var.admin_name
-        admin_password = var.admin_password
-        onboard_log    = var.onboard_log
-        licensekey     = var.cm_license_keys[0]
-        masterkey      = var.masterkey
-        personality    = "big_iq"
-        timezone       = var.timezone
-        ## todo need to update template to reflect passing of lists
-        ntp_servers        = var.ntp_servers[0]
-        dns_servers        = var.dns_servers[0]
-        dns_search_domains = var.dns_search_domains[0]
-        hostname           = local.hostname
-        management_ip      = aws_network_interface.cm_mgmt[0].private_ip
-        discovery_ip       = aws_network_interface.cm_mgmt[0].private_ip
-      }
-    )
-    destination = "/config/onboard.sh-${var.cm_instance_count}"
-
-    connection {
-      type        = "ssh"
-      user        = "admin"
-      private_key = file("${var.ec2_key_name}.pem")
-      host        = aws_eip.cm_mgmt[0].public_ip
-    }
-  }
-}
-/*
-#
-# Hack for remote exec of provisioning
-#
-resource "null_resource" "cm_dcd_activate" {
-  depends_on = [aws_instance.f5_bigiq_cm]
-  count      = var.cm_instance_count
-  provisioner "file" {
-    content = templatefile(
-      "${path.module}/activate_dcd.sh.tmpl",
-      {
-        admin_password = var.admin_password
-        license_key    = var.cm_license_keys[count.index]
-        master_key     = var.masterkey
-        personality    = "big_iq"
-        timezone       = var.timezone
-        ntp_servers    = var.ntp_servers[count.index]
-        dns_servers    = var.dns_servers[count.index]
-        hostname       = local.hostname
-        management_ip  = aws_network_interface.cm_mgmt[count.index].private_ip
-        discovery_ip   = aws_network_interface.cm_mgmt[count.index].private_ip
-        dcd_ip      = aws_network_interface.dcd_mgmt[count.index].private_ip
-        onboard_log = var.onboard_log
-      }
-    )
-    destination = "/config/cloud/activate-dcd.sh"
-
-    connection {
-      type        = "ssh"
-      user        = "admin"
-      private_key = file("${var.ec2_key_name}.pem")
-      host        = aws_eip.cm_mgmt[count.index].public_ip
-    }
-  }
-  provisioner "file" {
-    source = "${path.module}/mpcd.sh.tmpl"
-    destination = "/config/cloud/mcpd.sh"
-
-    connection {
-      type        = "ssh"
-      user        = "admin"
-      private_key = file("${var.ec2_key_name}.pem")
-      host        = aws_eip.cm_mgmt[count.index].public_ip
-    }
-  }
-}
-
-resource "time_sleep" "wait_120_seconds" {
-  depends_on = [null_resource.cm_dcd_activate]
-
-  create_duration = "120s"
-}
-
-resource "null_resource" "mcpd_wait" {
-  depends_on = [time_sleep.wait_120_seconds]
-}
-
-resource "null_resource" "mcpd" {
-  depends_on = [null_resource.mcpd_wait]
-  count      = var.cm_instance_count
-  provisioner "remote-exec" {
-    inline = [
-      "/bin/bash /config/cloud/mcpd.sh",
-    ]
-
-    connection {
-      type = "ssh"
-      user = "admin"
-      private_key = file("${var.ec2_key_name}.pem")
-      host = aws_eip.cm_mgmt[count.index].public_ip
-    }
-  }
-}
-
-resource "null_resource" "cm_tst" {
-# "remote-exec" TF provisioner requires scp access to /tmp
-# added to whitelist - https://support.f5.com/csp/article/K30829026
-# TODO Find who to ask about cloud-init?
-  depends_on = [null_resource.mcpd]
-  count      = var.cm_instance_count
-  provisioner "remote-exec" {
-    inline = [
-      "/usr/bin/env python /config/cloud/wait-for-service.py",
-      "chmod +x /config/cloud/activate-dcd.sh",
-      "nohup /config/cloud/activate-dcd.sh >> /var/log/activated.log",
-    ]
-
-    connection {
-      type = "ssh"
-      user = "admin"
-      private_key = file("${var.ec2_key_name}.pem")
-      host = aws_eip.cm_mgmt[count.index].public_ip
-    }
-  }
-}
-*/

@@ -1,4 +1,5 @@
 #!/bin/bash
+onboard_log=/tmp/test.log
 LOG_FILE=${onboard_log}
 if [ ! -e $LOG_FILE ]
 then
@@ -73,7 +74,7 @@ licenseRegistrationUrl="/mgmt/setup/license"
 personalityUrl="/mgmt/setup/personality"
 base_url="https://raw.githubusercontent.com/F5Networks"
 base_dir="/config/cloud"
-localHost="https://localhost:"
+localHost="http://localhost:"
 hostNameUrl="/mgmt/setup/address"
 masterKeyUrl="/mgmt/setup/masterkey"
 vlanUrl="/mgmt/setup/address/vlan"
@@ -110,7 +111,7 @@ function waitIq () {
   count=0
   while [ $count -le 10 ]
   do
-    status=$( curl -sk --header "$(setToken)" https://localhost:$mgmt_port$systemInfoUrl | jq .)
+    status=$( curl -sk --header "$(setToken)" http://localhost:$mgmt_port$systemInfoUrl | jq .)
     statusType=$(echo $status | jq -r type)
     if [ "$statusType" == "object" ]; then
       state=$( echo $status | jq -r .available)
@@ -160,7 +161,6 @@ checkLicense () {
         echo "Other error: $debug"
         ;;
     esac
-
 }
 getEulaPayload () {
 eulaPayload=$(cat -<<EOF
@@ -179,6 +179,9 @@ licenseFilePayload=$(cat -<<EOF
 }
 EOF
 )
+}
+function testing () {
+
 }
 setHostName () {
   curl -sk --header "Content-Type:application/json" --header "$(setToken)" -X POST --data "$hostNamePayload" --url $localHost$mgmt_port$hostNameUrl
@@ -205,13 +208,13 @@ submitSetup () {
  curl -sk --header "Content-Type:application/json" --header "$(setToken)" -X POST --data "$systemSetupPayload" --url $localHost$mgmt_port$systemSetupUrl
 }
 setPasswords () {
- curl -sk --header "Content-Type:application/json" --header "$(setToken)" -X POST --data "$passwordPayload7" --url $localHost$mgmt_port$passwordRootUrl7
+ curl -sk --header "Content-Type:application/json" --header "$(setToken)" -X POST --data "$passwordPayload" --url $localHost$mgmt_port$passwordRootUrl
 }
 function RestCall () {
   count=0
   while [ $count -le 4 ]
   do
-    status=$( curl -sk -u $CREDS https://localhost:$mgmt_port/info/system | jq .)
+    status=$( curl -sk -u $CREDS http://localhost:$mgmt_port/info/system | jq .)
     case $status in
         FINISHED)
             echo " rpm: $filename task: $install status: $status"
