@@ -139,32 +139,6 @@ resource "aws_security_group" "dcd_node" {
   }
 }
 
-resource "aws_security_group" "dcd_node" {
-  name        = "dcd_node"
-  description = "Replication across Data Collection Device (DCD)"
-  vpc_id      = var.vpc_id
-
-  ingress {
-    description = "DCD node-to-node"
-    from_port   = 9300
-    to_port     = 9300
-    protocol    = "tcp"
-    cidr_blocks = [data.aws_vpc.selected.cidr_block]
-  }
-
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  tags = {
-    Name = "dcd_node"
-  }
-}
-
 resource "aws_security_group" "big-iq_postgres" {
   name        = "big-iq_postgres"
   description = "postgres daemon IPC"
