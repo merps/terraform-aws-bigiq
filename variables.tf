@@ -7,7 +7,7 @@ variable "prefix" {
 variable "f5_ami_search_name" {
   description = "BIG-IP AMI name to search for"
   type        = string
-  default     = "F5 Hourly BIG-IQ-8*"
+  default     = "F5 BIG-IQ Virtual Edition - (BYOL)*"
 }
 
 variable "dcd_instance_count" {
