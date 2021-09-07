@@ -71,7 +71,7 @@ resource "aws_iam_role" "bigiq_role" {
 }
 
 resource "aws_iam_instance_profile" "instance_profile" {
-  name = format("%s-iam-profile-%s", var.prefix)
+  name = format("%s-iam-profile", var.prefix)
   role = aws_iam_role.bigiq_role.id
 }
 #
