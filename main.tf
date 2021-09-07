@@ -7,51 +7,71 @@ data "aws_secretsmanager_secret" "password" {
 #
 # Create IAM Role
 #
+resource "aws_iam_role_policy" "bigiq_policy" {
+  name = format("%s-iam-policy", var.prefix)
+  role = aws_iam_role.bigiq_role.id
 
-data "aws_iam_policy_document" "bigiq_role" {
-  version = "2012-10-17"
-  statement {
-    actions = [
-      "sts:AssumeRole"
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+            "ec2:DescribeInstances",
+            "ec2:DescribeInstanceStatus",
+            "ec2:DescribeAddresses",
+            "ec2:AssociateAddress",
+            "ec2:DisassociateAddress",
+            "ec2:DescribeNetworkInterfaces",
+            "ec2:DescribeNetworkInterfaceAttribute",
+            "ec2:DescribeRouteTables",
+            "ec2:ReplaceRoute",
+            "ec2:CreateRoute",
+            "ec2:assignprivateipaddresses",
+            "sts:AssumeRole",
+            "s3:ListAllMyBuckets"
+        ],
+        Resource = [
+            "*"
+        ],
+        Effect =  "Allow"
+    },
+      {
+        Effect = "Allow",
+        Action =  [
+            "secretsmanager:GetResourcePolicy",
+            "secretsmanager:GetSecretValue",
+            "secretsmanager:DescribeSecret",
+            "secretsmanager:ListSecretVersionIds",
+            "secretsmanager:UpdateSecretVersionStage"
+        ],
+        Resource = [
+            "*"
+        ]
+    },
     ]
-    principals {
-      type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
-    }
-  }
+  })
 }
-
 resource "aws_iam_role" "bigiq_role" {
-  name               = format("%s-bigiq-role", var.prefix)
-  assume_role_policy = data.aws_iam_policy_document.bigiq_role.json
+  name = format("%s-iam-role", var.prefix)
 
-  tags = {
-    tag-key = "tag-value"
-  }
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      },
+    ]
+  })
 }
 
-resource "aws_iam_instance_profile" "bigiq_profile" {
+resource "aws_iam_instance_profile" "bigiq_instance_profile" {
   name = format("%s-bigiq-profile", var.prefix)
   role = aws_iam_role.bigiq_role.name
-}
-
-data "aws_iam_policy_document" "bigiq_policy" {
-  version = "2012-10-17"
-  statement {
-    actions = [
-      "secretsmanager:GetSecretValue"
-    ]
-
-    resources = [
-      data.aws_secretsmanager_secret.password.arn
-    ]
-  }
-}
-
-resource "aws_iam_role_policy" "bigiq_policy" {
-  name   = format("%s-bigiq-policy", var.prefix)
-  role   = aws_iam_role.bigiq_role.id
-  policy = data.aws_iam_policy_document.bigiq_policy.json
 }
 #
 # Find BIG-IQ AMI
@@ -63,10 +83,6 @@ data "aws_ami" "f5_ami" {
     name   = "name"
     values = [var.f5_ami_search_name]
   }
-}
-# cache IAM Profile
-data "aws_iam_instance_profile" "bigiq" {
-  name = aws_iam_instance_profile.bigiq_profile.name
 }
 #
 locals {
@@ -341,7 +357,7 @@ resource "aws_instance" "f5_bigiq_cm" {
   count                = var.cm_instance_count
   instance_type        = var.ec2_instance_type
   ami                  = data.aws_ami.f5_ami.id
-  iam_instance_profile = data.aws_iam_instance_profile.bigiq.name
+  // iam_instance_profile = data.aws_instance_profile.
 
   key_name = var.ec2_key_name
 
