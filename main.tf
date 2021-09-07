@@ -395,7 +395,7 @@ resource "aws_instance" "f5_bigiq_cm" {
     Name = format("%s-cm-%d", var.prefix, count.index)
   }
 }
-
+/*
 resource "null_resource" "onboard_local" {
   provisioner "file" {
     content = templatefile("${path.module}/onboard.sh.tmpl",
@@ -426,7 +426,7 @@ resource "null_resource" "onboard_local" {
     }
   }
 }
-/*
+
 #
 # Hack for remote exec of provisioning
 #
