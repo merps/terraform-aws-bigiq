@@ -51,6 +51,7 @@ resource "aws_iam_role_policy" "bigiq_policy" {
     ]
   })
 }
+
 resource "aws_iam_role" "bigiq_role" {
   name = format("%s-iam-role", var.prefix)
 
@@ -69,9 +70,9 @@ resource "aws_iam_role" "bigiq_role" {
   })
 }
 
-resource "aws_iam_instance_profile" "bigiq_instance_profile" {
-  name = format("%s-bigiq-profile", var.prefix)
-  role = aws_iam_role.bigiq_role.name
+resource "aws_iam_instance_profile" "instance_profile" {
+  name = format("%s-iam-profile-%s", var.prefix)
+  role = aws_iam_role.bigiq_role.id
 }
 #
 # Find BIG-IQ AMI
